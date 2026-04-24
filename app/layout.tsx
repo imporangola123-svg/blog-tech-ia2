@@ -8,6 +8,13 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7895195042452960"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="bg-gray-50 text-gray-900">
 
         <header className="bg-white shadow-sm sticky top-0 z-50">
