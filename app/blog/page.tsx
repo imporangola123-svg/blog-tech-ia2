@@ -1,38 +1,43 @@
-import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { notFound } from 'next/navigation'
 
-export default async function BlogPage() {
-  const { data: posts } = await supabase
+export default async function PostPage({ params }: { params: { slug: string } }) {
+  const { data: post } = await supabase
     .from('posts')
     .select('*')
+    .eq('slug', params.slug)
     .eq('published', true)
-    .order('created_at', { ascending: false })
+    .single()
+
+  if (!post) notFound()
 
   return (
-    <div>
+    <article className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      {post.cover_image && (
+        <img
+          src={post.cover_image}
+          alt={post.title}
+          className="w-full h-64 object-cover"
+        />
+      )}
+      <div className="p-8">
+        <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+          {post.category}
+        </span>
+        <h1 className="text-3xl font-bold text-gray-800 mt-4 mb-2">{post.title}</h1>
+        <div className="flex gap-4 text-sm text-gray-400 mb-8">
+          <span>{new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
+          <span>👁 {post.views} views</span>
+        </div>
 
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Todos os Posts</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {posts?.map(post => (
-          <Link key={post.id} href={`/blog/${post.slug}`}>
-            <div className="bg-white rounded-xl p-6 shadow border border-gray-100 hover:shadow-md transition-shadow">
-              <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+        <div className="bg-gray-100 rounded-xl p-4 text-center text-sm text-gray-400 mb-8">
+          📢 Espaço para anúncio (Google AdSense)
+        </div>
 
-                {post.category}
-              </span>
-              <h3 className="text-lg font-semibold text-gray-800 mt-3 mb-2">
-                {post.title}
-              </h3>
-              <p className="text-gray-500 text-sm">{post.excerpt}</p>
-              <div className="flex justify-between text-xs text-gray-400 mt-4">
-                <span>{new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
-
-                <span>👁 {post.views} views</span>
-              </div>
-            </div>
-          </Link>
-        ))}
+        <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+          {post.content}
+        </div>
       </div>
-    </div>
+    </article>
   )
 }
